@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support Escalations</title>
+<style>
+  :root {
+    color-scheme: light;
+    --plane:#f9f9f7; --surface:#fcfcfb; --border:#e1e0d9;
+    --ink:#0b0b0b; --ink-2:#52514e; --ink-muted:#898781;
+    --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a;
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --plane:#0d0d0d; --surface:#1a1a19; --border:#2c2c2a;
+      --ink:#ffffff; --ink-2:#c3c2b7; --ink-muted:#898781;
+      --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --border:#2c2c2a;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-muted:#898781;
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--plane); color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1180px; margin:0 auto; padding:28px 16px 64px; }
+  header { display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; justify-content:space-between; margin-bottom:22px; }
+  h1 { font-size:22px; margin:0; letter-spacing:-0.01em; }
+  h2 { font-size:14px; margin:0 0 14px; color:var(--ink-2); font-weight:600; letter-spacing:0.01em; }
+  .sub { color:var(--ink-muted); font-size:13px; }
+  select, button {
+    font:inherit; font-size:13px; padding:6px 10px; border-radius:8px;
+    border:1px solid var(--border); background:var(--surface); color:var(--ink); cursor:pointer;
+  }
+  button:hover, select:hover { border-color:var(--ink-muted); }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+  .grid { display:grid; gap:14px; }
+  .tiles { grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); margin-bottom:14px; }
+  .cols { grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); align-items:start; }
+  .tile .label { font-size:12px; color:var(--ink-muted); text-transform:uppercase; letter-spacing:0.05em; }
+  .tile .value { font-size:30px; font-weight:650; letter-spacing:-0.02em; margin-top:6px; font-variant-numeric:tabular-nums; }
+  .tile .foot { font-size:12px; color:var(--ink-2); margin-top:4px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; font-weight:600; color:var(--ink-muted); font-size:11px;
+       text-transform:uppercase; letter-spacing:0.05em; padding:0 10px 8px 0; }
+  td { padding:9px 10px 9px 0; border-top:1px solid var(--border); vertical-align:top; }
+  tr.click { cursor:pointer; }
+  tr.click:hover td { background:var(--plane); }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px;
+          font-weight:600; border:1px solid var(--border); white-space:nowrap; }
+  .mono { font-variant-numeric:tabular-nums; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+  .barrow { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; margin-bottom:9px; }
+  .barrow .name { font-size:13px; }
+  .barrow .track { display:block; grid-column:1/-1; height:8px; background:var(--plane);
+                   border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+  .barrow .fill { display:block; height:100%; border-radius:3px; background:var(--series-1); min-width:2px; }
+  .delta { font-size:11px; font-weight:600; }
+  .empty { color:var(--ink-muted); font-size:13px; padding:10px 0; }
+  .md { font-size:14px; line-height:1.65; }
+  .md h2 { font-size:15px; color:var(--ink); margin:20px 0 8px; }
+  .md ul { padding-left:20px; }
+  dialog { border:1px solid var(--border); border-radius:var(--radius); background:var(--surface);
+           color:var(--ink); max-width:640px; width:92vw; padding:22px; }
+  dialog::backdrop { background:rgba(0,0,0,.42); }
+  .kv { display:grid; grid-template-columns:130px 1fr; gap:6px 14px; font-size:13px; margin:14px 0; }
+  .kv dt { color:var(--ink-muted); }
+  .kv dd { margin:0; white-space:pre-wrap; }
+  .quote { border-left:3px solid var(--series-3); padding:8px 12px; background:var(--plane);
+           border-radius:0 6px 6px 0; font-size:13px; white-space:pre-wrap; margin:10px 0; }
+  .warn { color:var(--critical); font-weight:600; }
+  svg text { font-size:10px; fill:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Support Escalations</h1>
+      <div class="sub" id="updated">Loading…</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <select id="range">
+        <option value="7">Last 7 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="90">Last 90 days</option>
+      </select>
+      <button id="theme">Theme</button>
+      <button id="refresh">Refresh</button>
+    </div>
+  </header>
+
+  <div class="grid tiles" id="tiles"></div>
+  <div id="breach"></div>
+
+  <div class="grid cols" style="margin-top:14px;">
+    <section class="card">
+      <h2>Escalation volume</h2>
+      <div id="volume"></div>
+    </section>
+    <section class="card">
+      <h2>Where tickets are sitting</h2>
+      <div id="status"></div>
+    </section>
+  </div>
+
+  <div class="grid cols" style="margin-top:14px;">
+    <section class="card">
+      <h2>Recurring themes <span class="sub">— change vs previous period</span></h2>
+      <div id="themes"></div>
+    </section>
+    <section class="card">
+      <h2>Root causes</h2>
+      <div id="causes"></div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:14px;">
+    <h2>Accounts generating the most escalations</h2>
+    <div id="customers"></div>
+  </section>
+
+  <section class="card" style="margin-top:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h2 style="margin:0;">AI review</h2>
+      <div style="display:flex;gap:8px;">
+        <select id="digestPeriod">
+          <option value="daily">Daily</option>
+          <option value="weekly" selected>Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+        <button id="genDigest">Generate</button>
+      </div>
+    </div>
+    <div class="md" id="digest"><span class="empty">No review generated for this period yet.</span></div>
+  </section>
+
+  <section class="card" style="margin-top:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h2 style="margin:0;">Tickets</h2>
+      <select id="statusFilter">
+        <option value="">All</option>
+        <option value="new,active,pending_customer,pending_internal" selected>Open only</option>
+        <option value="new">New</option>
+        <option value="active">Active</option>
+        <option value="pending_customer">Pending customer</option>
+        <option value="pending_internal">Pending internal</option>
+        <option value="resolved">Resolved</option>
+        <option value="closed">Closed</option>
+      </select>
+    </div>
+    <div id="tickets"></div>
+  </section>
+</div>
+
+<dialog id="detail"></dialog>
+
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = (n) => (n === null || n === undefined ? '—' : n);
+const hrs = (h) => (h === null || h === undefined ? '—' : h < 1 ? `${Math.round(h*60)}m` : h < 48 ? `${h}h` : `${(h/24).toFixed(1)}d`);
+const SEV = { P1:'critical', P2:'serious', P3:'warning', P4:'good' };
+const STATUS_LABEL = {
+  new:'New', active:'Active', pending_customer:'Pending customer',
+  pending_internal:'Pending internal', resolved:'Resolved', closed:'Closed',
+};
+
+const api = async (path, opts) => {
+  const res = await fetch(path, { credentials:'same-origin', ...opts });
+  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+  return res.json();
+};
+
+// ---- stat tiles -------------------------------------------------------
+function renderTiles(k) {
+  const p = k.performance, open = ['new','active','pending_customer','pending_internal']
+    .reduce((n, s) => n + (k.status[s] || 0), 0);
+  const slaColor = p.sla_compliance_pct === null ? 'var(--ink)'
+    : p.sla_compliance_pct >= 90 ? 'var(--good)'
+    : p.sla_compliance_pct >= 75 ? 'var(--warning)' : 'var(--critical)';
+
+  const tiles = [
+    { label:'Open now',        value:open,                          foot:`${k.status.new||0} untouched` },
+    { label:'Last 7 days',     value:k.volume.last_7_days,          foot:`${k.volume.today} today` },
+    { label:'Last 30 days',    value:k.volume.last_30_days,         foot:`${k.volume.all_time} all time` },
+    { label:'Median response', value:hrs(p.median_first_response_hours), foot:`avg ${hrs(p.avg_first_response_hours)}` },
+    { label:'SLA met',         value:p.sla_compliance_pct === null ? '—' : `${p.sla_compliance_pct}%`,
+      foot:`of ${p.responded_count} answered`, color:slaColor },
+    { label:'Preventable',     value:k.preventable.preventable_pct === null ? '—' : `${k.preventable.preventable_pct}%`,
+      foot:`${k.preventable.preventable} of ${k.preventable.analyzed} analyzed` },
+  ];
+  $('tiles').innerHTML = tiles.map(t => `
+    <div class="card tile">
+      <div class="label">${esc(t.label)}</div>
+      <div class="value" ${t.color ? `style="color:${t.color}"` : ''}>${esc(t.value)}</div>
+      <div class="foot">${esc(t.foot)}</div>
+    </div>`).join('');
+}
+
+function renderBreach(list) {
+  if (!list.length) { $('breach').innerHTML = ''; return; }
+  $('breach').innerHTML = `
+    <div class="card" style="border-color:var(--critical);">
+      <h2 style="color:var(--critical);margin-bottom:10px;">⚠ Past first-response SLA (${list.length})</h2>
+      ${list.map(t => `
+        <div style="display:flex;gap:10px;align-items:baseline;padding:4px 0;">
+          <span class="mono">${esc(t.ticket_number)}</span>
+          <span class="pill" style="border-color:var(--critical);color:var(--critical)">${esc(t.severity)}</span>
+          <span>${esc(t.subject)}</span>
+          <span class="sub">${esc(t.customer_company || t.customer_name || '')}</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ---- volume bars (single series: no legend needed, title names it) ----
+function renderVolume(days) {
+  const el = $('volume');
+  if (!days.length) { el.innerHTML = '<div class="empty">No escalations in this window.</div>'; return; }
+  const W = 100, H = 34, max = Math.max(...days.map(d => d.count), 1);
+  const gap = 0.35, bw = (W / days.length) - gap;
+
+  const bars = days.map((d, i) => {
+    const h = (d.count / max) * H;
+    const x = i * (W / days.length);
+    return `<rect x="${x.toFixed(2)}" y="${(H - h).toFixed(2)}" width="${Math.max(bw,0.5).toFixed(2)}"
+      height="${Math.max(h,0.4).toFixed(2)}" rx="0.5" fill="var(--series-1)"><title>${esc(d.day)}: ${d.count} escalation${d.count===1?'':'s'}</title></rect>`;
+  }).join('');
+
+  const total = days.reduce((n, d) => n + d.count, 0);
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+      <span style="font-size:26px;font-weight:650;letter-spacing:-0.02em;">${total}</span>
+      <span class="sub">peak ${max}/day</span>
+    </div>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:110px;display:block;overflow:visible">${bars}</svg>
+    <div class="sub" style="display:flex;justify-content:space-between;margin-top:6px;">
+      <span>${esc(days[0].day)}</span><span>${esc(days.at(-1).day)}</span>
+    </div>`;
+}
+
+// ---- ranked horizontal bars (composition without a pie) ---------------
+function barList(rows, { colorFor } = {}) {
+  if (!rows.length) return '<div class="empty">Nothing to show yet.</div>';
+  const max = Math.max(...rows.map(r => r.value), 1);
+  return rows.map(r => `
+    <div class="barrow">
+      <span class="name">${esc(r.name)}${r.note ? ` <span class="delta" style="color:${r.noteColor||'var(--ink-muted)'}">${esc(r.note)}</span>` : ''}</span>
+      <span class="mono">${r.value}</span>
+      <span class="track"><span class="fill" style="width:${(r.value/max*100).toFixed(1)}%;background:${colorFor ? colorFor(r) : 'var(--series-1)'}"></span></span>
+    </div>`).join('');
+}
+
+function renderStatus(k) {
+  const order = ['new','active','pending_internal','pending_customer','resolved','closed'];
+  const rows = order.filter(s => k.status[s]).map(s => ({ name: STATUS_LABEL[s], value: k.status[s], key: s }));
+  const sev = k.severity.map(s => ({ name: s.severity, value: s.count, key: s.severity }));
+  $('status').innerHTML =
+    barList(rows, { colorFor: r => r.key === 'new' ? 'var(--critical)' : r.key === 'active' ? 'var(--series-1)' : 'var(--series-3)' }) +
+    `<h2 style="margin:20px 0 12px;">Severity mix</h2>` +
+    barList(sev, { colorFor: r => `var(--${SEV[r.key] || 'good'})` });
+}
+
+function renderThemes(themes) {
+  const rows = themes.map(t => ({
+    name: t.theme,
+    value: t.count,
+    note: t.direction === 'up' ? `▲ +${t.change}` : t.direction === 'down' ? `▼ ${t.change}` : '— flat',
+    noteColor: t.direction === 'up' ? 'var(--critical)' : t.direction === 'down' ? 'var(--good)' : 'var(--ink-muted)',
+  }));
+  $('themes').innerHTML = rows.length
+    ? barList(rows)
+    : '<div class="empty">Themes appear once the AI classifier has analysed some escalations.</div>';
+}
+
+function renderCauses(causes) {
+  $('causes').innerHTML = barList(
+    causes.map(c => ({ name: c.category.replace(/_/g, ' '), value: c.count })),
+    { colorFor: () => 'var(--series-2)' },
+  );
+}
+
+function renderCustomers(list) {
+  if (!list.length) { $('customers').innerHTML = '<div class="empty">No accounts yet.</div>'; return; }
+  $('customers').innerHTML = `
+    <table><thead><tr>
+      <th>Account</th><th>Tickets</th><th>P1/P2</th><th>Negative</th><th>Reopened</th><th>Last escalation</th>
+    </tr></thead><tbody>
+      ${list.map(c => `<tr>
+        <td><strong>${esc(c.company || c.name || c.email || 'Unknown')}</strong><br><span class="sub">${esc(c.email || '')}</span></td>
+        <td class="mono">${c.ticket_count}</td>
+        <td class="mono">${c.high_severity_count || 0}</td>
+        <td class="mono ${c.negative_count > 0 ? 'warn' : ''}">${c.negative_count || 0}</td>
+        <td class="mono">${c.reopened_count || 0}</td>
+        <td class="sub">${esc((c.last_ticket_at || '').slice(0, 10))}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function renderTickets() {
+  const status = $('statusFilter').value;
+  const rows = await api(`/api/tickets?limit=100${status ? `&status=${status}` : ''}`);
+  if (!rows.length) { $('tickets').innerHTML = '<div class="empty">No tickets match this filter.</div>'; return; }
+  $('tickets').innerHTML = `
+    <table><thead><tr>
+      <th>Ticket</th><th>Sev</th><th>Customer</th><th>Subject</th><th>Theme</th><th>Status</th><th>Opened</th>
+    </tr></thead><tbody>
+      ${rows.map(t => `<tr class="click" data-n="${esc(t.ticket_number)}">
+        <td class="mono">${esc(t.ticket_number)}</td>
+        <td><span class="pill" style="color:var(--${SEV[t.severity]});border-color:var(--${SEV[t.severity]})">${esc(t.severity)}</span></td>
+        <td>${esc(t.customer_company || t.customer_name || t.customer_email || '—')}</td>
+        <td>${esc(t.subject)}</td>
+        <td class="sub">${esc(t.theme || '—')}</td>
+        <td>${esc(STATUS_LABEL[t.status] || t.status)}</td>
+        <td class="sub">${esc((t.created_at || '').slice(0, 10))}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  for (const tr of $('tickets').querySelectorAll('tr.click')) {
+    tr.onclick = () => openTicket(tr.dataset.n);
+  }
+}
+
+// ---- ticket detail ----------------------------------------------------
+async function openTicket(number) {
+  const { ticket: t, events, analysis: a } = await api(`/api/tickets/${encodeURIComponent(number)}`);
+  $('detail').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+      <h1 style="font-size:18px;">${esc(t.ticket_number)}</h1>
+      <button id="closeDlg">Close</button>
+    </div>
+    <p style="font-size:16px;font-weight:600;margin:10px 0 0;">${esc(t.subject)}</p>
+    <dl class="kv">
+      <dt>Customer</dt><dd>${esc(t.customer_name || '—')}${t.customer_company ? ` · ${esc(t.customer_company)}` : ''}<br><span class="sub">${esc(t.customer_email || t.customer_phone || '')}</span></dd>
+      <dt>Escalated by</dt><dd>${esc(t.escalated_by || '—')}</dd>
+      <dt>Severity</dt><dd>${esc(t.severity)} · due ${esc(t.first_response_due_at || '—')}</dd>
+      <dt>Problem</dt><dd>${esc(t.description)}</dd>
+      ${t.steps_taken ? `<dt>L1 already tried</dt><dd>${esc(t.steps_taken)}</dd>` : ''}
+      ${t.customer_impact ? `<dt>Impact</dt><dd>${esc(t.customer_impact)}</dd>` : ''}
+      ${t.resolution_summary ? `<dt>Resolution</dt><dd>${esc(t.resolution_summary)}</dd>` : ''}
+    </dl>
+    ${a ? `
+      <h2 style="margin-top:18px;">AI analysis</h2>
+      <dl class="kv">
+        <dt>Theme</dt><dd>${esc(a.theme)}</dd>
+        <dt>Root cause</dt><dd>${esc(a.root_cause_category.replace(/_/g,' '))}</dd>
+        <dt>Sentiment</dt><dd>${esc(a.sentiment)} · urgency ${a.urgency_score}/10</dd>
+        <dt>Preventable</dt><dd>${a.preventable ? `Yes — ${esc(a.prevention_note || '')}` : 'No'}</dd>
+      </dl>
+      ${a.suggested_reply ? `<div class="sub" style="margin-top:12px;">Suggested reply</div><div class="quote">${esc(a.suggested_reply)}</div>` : ''}
+    ` : '<p class="empty">No AI analysis for this ticket.</p>'}
+    <h2 style="margin-top:18px;">Change status</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      ${Object.entries(STATUS_LABEL).map(([k, v]) =>
+        `<button data-status="${k}" ${k === t.status ? 'disabled style="opacity:.4"' : ''}>${esc(v)}</button>`).join('')}
+    </div>
+    <h2>History</h2>
+    <div class="sub">${events.map(e =>
+      `${esc(e.created_at)} · ${esc(e.type)}${e.to_status ? ` → ${esc(e.to_status)}` : ''}${e.note ? ` · ${esc(e.note)}` : ''}`).join('<br>')}</div>`;
+
+  $('detail').showModal();
+  $('closeDlg').onclick = () => $('detail').close();
+  for (const b of $('detail').querySelectorAll('button[data-status]')) {
+    b.onclick = async () => {
+      b.disabled = true;
+      const note = b.dataset.status === 'resolved' ? prompt('Resolution summary (sent to the customer):') : null;
+      await api(`/api/tickets/${encodeURIComponent(number)}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: b.dataset.status, resolution_summary: note || undefined }),
+      });
+      $('detail').close();
+      load();
+    };
+  }
+}
+
+// ---- digest -----------------------------------------------------------
+const mdToHtml = (md) => esc(md)
+  .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+  .replace(/^\- (.+)$/gm, '<li>$1</li>')
+  .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>')
+  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  .replace(/\n{2,}/g, '<br><br>');
+
+async function loadDigest() {
+  try {
+    const d = await api(`/api/digest/${$('digestPeriod').value}`);
+    $('digest').innerHTML = `<div class="sub" style="margin-bottom:10px;">Generated ${esc(d.created_at)}</div>${mdToHtml(d.body_md)}`;
+  } catch {
+    $('digest').innerHTML = '<span class="empty">No review generated for this period yet.</span>';
+  }
+}
+
+// ---- boot -------------------------------------------------------------
+async function load() {
+  const k = await api(`/api/kpi?days=${$('range').value}`);
+  $('updated').textContent = `Updated ${new Date(k.generated_at).toLocaleString()}`;
+  renderTiles(k);
+  renderBreach(k.breached);
+  renderVolume(k.volume_by_day);
+  renderStatus(k);
+  renderThemes(k.themes);
+  renderCauses(k.root_causes);
+  renderCustomers(k.top_customers);
+  await renderTickets();
+  await loadDigest();
+}
+
+$('range').onchange = load;
+$('refresh').onclick = load;
+$('statusFilter').onchange = renderTickets;
+$('digestPeriod').onchange = loadDigest;
+$('theme').onclick = () => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  try { localStorage.setItem('theme', dark ? 'light' : 'dark'); } catch {}
+};
+try {
+  const saved = localStorage.getItem('theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+} catch {}
+$('genDigest').onclick = async () => {
+  $('genDigest').disabled = true;
+  $('digest').innerHTML = '<span class="empty">Analysing…</span>';
+  try {
+    const d = await api(`/api/digest/${$('digestPeriod').value}`, { method: 'POST' });
+    $('digest').innerHTML = mdToHtml(d.body_md);
+  } catch (e) {
+    $('digest').innerHTML = `<span class="empty">Failed: ${esc(e.message)}</span>`;
+  }
+  $('genDigest').disabled = false;
+};
+
+load().catch(e => { $('updated').textContent = `Failed to load: ${e.message}`; });
+</script>
+</body>
+</html>

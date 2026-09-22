@@ -1,0 +1,23 @@
+{
+  "name": "support-automation-saas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Escalation ticketing, KPI analytics and AI theme mining on top of a GoHighLevel sub-account",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "provision": "node scripts/provision-ghl.js",
+    "seed": "node scripts/seed-demo.js",
+    "digest": "node scripts/run-digest.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
+    "express": "^5.1.0",
+    "zod": "^3.25.0"
+  }
+}
