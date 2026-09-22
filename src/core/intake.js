@@ -13,11 +13,8 @@ const ALIASES = {
   customerCompany: ['customer_company', 'company', 'companyName', 'account', 'organization'],
   subject: ['subject', 'issue_subject', 'title', 'summary', 'issue'],
   description: ['description', 'issue_description', 'details', 'problem', 'message', 'escalation_summary'],
-  stepsTaken: ['steps_taken', 'stepsTaken', 'steps_already_taken', 'l1_notes', 'troubleshooting'],
-  customerImpact: ['customer_impact', 'customerImpact', 'impact', 'business_impact'],
   severity: ['severity', 'priority', 'urgency'],
   category: ['category', 'issue_type', 'type', 'product_area'],
-  escalatedBy: ['escalated_by', 'escalatedBy', 'agent', 'agent_name', 'submitted_by', 'l1_agent'],
   ghlContactId: ['contact_id', 'contactId', 'ghl_contact_id'],
 };
 

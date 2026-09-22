@@ -31,7 +31,6 @@ const base = {
   customerCompany: 'Northgate Logistics',
   subject: 'SSO login loop',
   description: 'Cannot sign in via Google SSO.',
-  escalatedBy: 'jordan.l1',
 };
 
 test('severity normalization accepts the spellings a form will actually produce', () => {

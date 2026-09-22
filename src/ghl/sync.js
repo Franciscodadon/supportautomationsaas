@@ -18,9 +18,6 @@ function ticketCustomFields(ticket) {
     support_category: ticket.category,
     support_subject: ticket.subject,
     support_summary: ticket.description,
-    support_steps_taken: ticket.steps_taken,
-    support_impact: ticket.customer_impact,
-    support_escalated_by: ticket.escalated_by,
     support_due_at: ticket.first_response_due_at,
     support_resolution: ticket.resolution_summary,
   };

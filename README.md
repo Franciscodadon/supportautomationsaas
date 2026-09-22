@@ -36,7 +36,7 @@ into the existing conversation history.
 first-response deadline, and an append-only event history. Statuses are `new`,
 `active`, `pending_customer`, `pending_internal`, `resolved`, `closed`.
 
-**Two-way GHL sync** — intake creates the contact, stamps twelve custom fields
+**Two-way GHL sync** — intake creates the contact, stamps nine custom fields
 and opens a pipeline card. Dragging that card fires a workflow webhook back
 here, which updates the ticket and emails the customer.
 

@@ -340,11 +340,8 @@ async function openTicket(number) {
     <p style="font-size:16px;font-weight:600;margin:10px 0 0;">${esc(t.subject)}</p>
     <dl class="kv">
       <dt>Customer</dt><dd>${esc(t.customer_name || '—')}${t.customer_company ? ` · ${esc(t.customer_company)}` : ''}<br><span class="sub">${esc(t.customer_email || t.customer_phone || '')}</span></dd>
-      <dt>Escalated by</dt><dd>${esc(t.escalated_by || '—')}</dd>
       <dt>Severity</dt><dd>${esc(t.severity)} · due ${esc(t.first_response_due_at || '—')}</dd>
       <dt>Problem</dt><dd>${esc(t.description)}</dd>
-      ${t.steps_taken ? `<dt>L1 already tried</dt><dd>${esc(t.steps_taken)}</dd>` : ''}
-      ${t.customer_impact ? `<dt>Impact</dt><dd>${esc(t.customer_impact)}</dd>` : ''}
       ${t.resolution_summary ? `<dt>Resolution</dt><dd>${esc(t.resolution_summary)}</dd>` : ''}
     </dl>
     ${a ? `

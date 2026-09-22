@@ -94,18 +94,11 @@ ESCALATION ${ticket.ticket_number}
 Stated severity: ${ticket.severity}
 Category: ${ticket.category || 'not set'}
 Customer: ${ticket.customer_name || 'unknown'}${ticket.customer_company ? ` (${ticket.customer_company})` : ''}
-Escalated by: ${ticket.escalated_by || 'unknown'}
 
 Subject: ${ticket.subject}
 
 Description:
-${ticket.description}
-
-Steps L1 already tried:
-${ticket.steps_taken || 'not recorded'}
-
-Customer impact as described:
-${ticket.customer_impact || 'not recorded'}`;
+${ticket.description}`;
 
   let response;
   try {

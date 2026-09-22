@@ -68,7 +68,7 @@ Now run:
 npm run provision
 ```
 
-It creates the twelve support custom fields, reads your pipeline back, and
+It creates the nine support custom fields, reads your pipeline back, and
 prints the `GHL_PIPELINE_ID` / `GHL_STAGE_*` lines to paste into `.env`.
 
 ---
@@ -89,11 +89,8 @@ up to you.
 | Customer email | Email | `customer_email` | yes* |
 | Customer phone | Phone | `customer_phone` | no* |
 | Company / account | Text | `customer_company` | no |
-| Your name (L1 agent) | Text | `escalated_by` | yes |
 | Issue subject | Text | `subject` | yes |
 | What is happening | Textarea | `description` | yes |
-| What you already tried | Textarea | `steps_taken` | yes |
-| Impact on the customer | Textarea | `customer_impact` | no |
 | Severity | Dropdown | `severity` | yes |
 | Category | Dropdown | `category` | no |
 
@@ -213,7 +210,7 @@ curl -X POST "https://your-service-url/webhook/escalation?token=YOUR_WEBHOOK_SEC
   -H 'Content-Type: application/json' \
   -d '{"customer_name":"Test Customer","customer_email":"you@yourdomain.com",
        "subject":"End to end test","description":"Checking the pipeline.",
-       "severity":"Normal - broken but there is a workaround","escalated_by":"setup"}'
+       "severity":"Normal - broken but there is a workaround"}'
 ```
 
 You should see, within about ten seconds:

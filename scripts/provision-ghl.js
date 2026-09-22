@@ -3,7 +3,7 @@
  * Provisions everything in the GoHighLevel sub-account that the API can create,
  * and verifies everything it cannot.
  *
- * Creates:  the twelve support custom fields on the contact record.
+ * Creates:  the nine support custom fields on the contact record.
  * Verifies: the Support Escalations pipeline and its stages, then prints the
  *           exact .env lines to paste in.
  *

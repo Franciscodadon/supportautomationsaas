@@ -94,9 +94,8 @@ export function createTicket(input) {
       .prepare(
         `INSERT INTO tickets (
            ticket_number, customer_id, status, severity, category, subject, description,
-           steps_taken, customer_impact, escalated_by, source, first_response_due_at,
-           created_at, updated_at
-         ) VALUES (?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           source, first_response_due_at, created_at, updated_at
+         ) VALUES (?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         ticketNumber,
@@ -105,9 +104,6 @@ export function createTicket(input) {
         input.category ?? null,
         input.subject,
         input.description,
-        input.stepsTaken ?? null,
-        input.customerImpact ?? null,
-        input.escalatedBy ?? null,
         input.source ?? 'form',
         toIso(firstResponseDueAt(severity, new Date(createdAt))),
         createdAt,
@@ -118,7 +114,7 @@ export function createTicket(input) {
     db.prepare(
       `INSERT INTO ticket_events (ticket_id, type, to_status, actor, note)
        VALUES (?, 'created', 'new', ?, ?)`,
-    ).run(ticket.id, input.escalatedBy ?? 'system', `Escalation received via ${input.source ?? 'form'}`);
+    ).run(ticket.id, 'system', `Escalation received via ${input.source ?? 'form'}`);
 
     return { ticket, customer };
   });
